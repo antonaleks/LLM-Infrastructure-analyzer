@@ -1,0 +1,231 @@
+servingEngineSpec:
+  enableEngine: true
+  labels:
+    environment: "test"
+    release: "test"
+
+
+  modelSpec:
+    - name: "rtx4090"
+      repository: "vllm/vllm-openai"
+      tag: "v0.8.5.post1"
+      modelURL: "Qwen/Qwen3-8B"
+      replicaCount: 1
+
+      requestCPU: 2
+      requestMemory: "8Gi"
+      requestGPU: 1
+
+      vllmConfig:
+        gpuMemoryUtilization: 0.9
+        dtype: "bfloat16"
+        # maxModelLen: 8192
+        # maxNumBatchedTokens: 64000
+        maxNumSeqs: 512
+        # enablePrefixCaching: # (optional, bool) Enable prefix caching, e.g., false
+        # enableChunkedPrefill: # (optional, bool) Enable chunked prefill, e.g., false
+        maxModelLen: 2048 # (optional, int) The maximum model length, e.g., 16384
+        tensorParallelSize: 1 # (optional, int) The degree of tensor parallelism, e.g., 2
+        # maxNumSeqs: # (optional, int) Maximum number of sequences to be processed in a single iteration., e.g., 32
+        # maxLoras: # (optional, int) The maximum number of LoRA models to be loaded in a single batch, e.g., 4
+        # extraArgs: # (optional, list) Extra command line arguments to pass to vLLM, e.g., 
+        #   - "--disable-log-requests"
+
+      hf_token: 
+        secretName: "hf-token-secret"
+        secretKey: "hf-token"
+
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: nvidia.com/gpu.product
+              operator: "In"
+              values:
+                - "NVIDIA-GeForce-RTX-4090"
+
+      extraVolumes:
+        - name: hf-cache
+          persistentVolumeClaim:
+            claimName: nfs-pvc
+
+      extraVolumeMounts:
+        - name: hf-cache
+          mountPath: /tmp/hub
+          subPath: huggingface-cache/hub
+
+    - name: "a5000"
+      repository: "vllm/vllm-openai"
+      tag: "v0.8.5.post1"
+      modelURL: "google/gemma-3-12b-it"
+      replicaCount: 1
+
+      requestCPU: 4
+      requestMemory: "32Gi"
+      requestGPU: 2
+
+      vllmConfig:
+        gpuMemoryUtilization: 0.9
+        dtype: "bfloat16"
+        # maxModelLen: 8192
+        # maxNumBatchedTokens: 64000
+        maxNumSeqs: 32
+        # enablePrefixCaching: # (optional, bool) Enable prefix caching, e.g., false
+        # enableChunkedPrefill: # (optional, bool) Enable chunked prefill, e.g., false
+        maxModelLen: 2048 # (optional, int) The maximum model length, e.g., 16384
+        tensorParallelSize: 2 # (optional, int) The degree of tensor parallelism, e.g., 2
+        # maxNumSeqs: # (optional, int) Maximum number of sequences to be processed in a single iteration., e.g., 32
+        # maxLoras: # (optional, int) The maximum number of LoRA models to be loaded in a single batch, e.g., 4
+        # extraArgs: # (optional, list) Extra command line arguments to pass to vLLM, e.g., 
+        #   - "--disable-log-requests"
+
+      hf_token: 
+        secretName: "hf-token-secret"
+        secretKey: "hf-token"
+
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: nvidia.com/gpu.product
+              operator: "In"
+              values:
+                - "NVIDIA-RTX-A5000"
+
+      
+      extraVolumes:
+        - name: hf-cache
+          persistentVolumeClaim:
+            claimName: nfs-pvc
+
+      extraVolumeMounts:
+        - name: hf-cache
+          mountPath: /tmp/hub
+          subPath: huggingface-cache/hub
+
+    - name: "a6000"
+      repository: "vllm/vllm-openai"
+      tag: "v0.8.5.post1"
+      modelURL: "google/gemma-3-12b-it"
+      replicaCount: 1
+
+      requestCPU: 4
+      requestMemory: "32Gi"
+      requestGPU: 1
+
+      vllmConfig:
+        gpuMemoryUtilization: 0.95
+        dtype: "bfloat16"
+        maxModelLen: 4096
+        maxNumBatchedTokens: 128000
+        maxNumSeqs: 1024
+        enableChunkedPrefill: true
+        enablePrefixCaching: true
+        # maxModelLen: 8192
+        # maxNumBatchedTokens: 64000
+        # maxNumSeqs: 512
+        # enablePrefixCaching: # (optional, bool) Enable prefix caching, e.g., false
+        # enableChunkedPrefill: # (optional, bool) Enable chunked prefill, e.g., false
+        # maxModelLen: # (optional, int) The maximum model length, e.g., 16384
+        # tensorParallelSize: # (optional, int) The degree of tensor parallelism, e.g., 2
+        # maxNumSeqs: # (optional, int) Maximum number of sequences to be processed in a single iteration., e.g., 32
+        # maxLoras: # (optional, int) The maximum number of LoRA models to be loaded in a single batch, e.g., 4
+        # extraArgs: # (optional, list) Extra command line arguments to pass to vLLM, e.g., 
+        #   - "--disable-log-requests"
+
+      hf_token: 
+        secretName: "hf-token-secret"
+        secretKey: "hf-token"
+
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: nvidia.com/gpu.product
+              operator: "In"
+              values:
+                - "NVIDIA-RTX-6000-Ada-Generation"
+
+      extraVolumes:
+        - name: hf-cache
+          persistentVolumeClaim:
+            claimName: nfs-pvc
+
+      extraVolumeMounts:
+        - name: hf-cache
+          mountPath: /tmp/hub
+          subPath: huggingface-cache/hub
+
+    - name: "a100"
+      repository: "vllm/vllm-openai"
+      tag: "v0.8.5.post1"
+      modelURL: "google/gemma-3-12b-it"
+      # modelURL: "facebook/opt-350m"
+      replicaCount: 1
+
+      requestCPU: 4
+      requestMemory: "32Gi"
+      requestGPU: 1
+
+      vllmConfig:
+        gpuMemoryUtilization: 0.98
+        dtype: "bfloat16"
+        maxModelLen: 4096
+        maxNumBatchedTokens: 128000
+        maxNumSeqs: 1024
+        enableChunkedPrefill: true
+        enablePrefixCaching: true
+        # quantization: "awq"
+        # swapSpace: 8
+        # tensorParallelSize: 1
+        # blockSize: 16
+        # schedulerDelayFactor: 0.1
+        # schedulingPolicy: "max_utilization"
+        # maxNumPartialPrefills: 128
+        # longPrefillTokenThreshold: 256
+        # multiStepStreamOutputs: true
+        # numLookaheadSlots: 32
+        extraArgs: 
+          - "--disable-log-stats"
+
+      hf_token: 
+        secretName: "hf-token-secret"
+        secretKey: "hf-token"
+
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: nvidia.com/gpu.product
+              operator: "In"
+              values:
+                - "NVIDIA-A100-PCIE-40GB"
+
+      extraVolumes:
+        - name: hf-cache
+          persistentVolumeClaim:
+            claimName: nfs-pvc
+
+      extraVolumeMounts:
+        - name: hf-cache
+          mountPath: /tmp/hub
+          subPath: huggingface-cache/hub
+
+  containerPort: 8000
+  servicePort: 80
+  runtimeClassName: "nvidia"
+  tolerations: []
+  strategy: 
+    type: "Recreate"
+  maxUnavailablePodDisruptionBudget: ""
+  startupProbe:
+    initialDelaySeconds: 300
+    periodSeconds: 10
+    failureThreshold: 60
+    httpGet:
+      path: /health
+      port: 8000
+  livenessProbe:
+    initialDelaySeconds: 500
+    failureThreshold: 3
+    periodSeconds: 10
+    httpGet:
+      path: /health
+      port: 8000
+  containerSecurityContext:
+    runAsNonRoot: false
+
+routerSpec:
+  enableRouter: false

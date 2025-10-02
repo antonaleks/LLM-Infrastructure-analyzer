@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: genai-perf-rtx4090-
+  annotations:
+    workflows.argoproj.io/description: |
+      GenAI Performance test for Qwen/Qwen3-8B on RTX4090
+spec:
+  workflowTemplateRef:
+    name: genai-perf-profile-template
+  arguments:
+    parameters:
+    - name: gpu-type
+      value: "rtx4090"
+    - name: endpoint-type
+      value: "completions"
+    - name: service-url
+      value: "http://vllm-rtx4090-engine-service"
+    - name: request-rate
+      value: "1"
+    - name: request-count
+      value: "10"
+    - name: additional-args
+      value: "--streaming" 
+    - name: model-name
+      value: "Qwen/Qwen3-8B"
+    - name: output-tokens-stddev
+      value: "5"
+    - name: output-tokens-mean
+      value: "100"
+    - name: synthetic-input-tokens-stddev
+      value: "10"
+    - name: synthetic-input-tokens-mean
+      value: "50"

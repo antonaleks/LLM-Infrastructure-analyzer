@@ -1,0 +1,37 @@
+driver:
+  enabled: false
+
+toolkit:
+  enabled: false
+
+devicePlugin:
+  enabled: false
+
+dcgmExporter:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    honorLabels: false
+    additionalLabels: {}
+    relabelings: []
+    # - source_labels:
+    #     - __meta_kubernetes_pod_node_name
+    #   regex: (.*)
+    #   target_label: instance
+    #   replacement: $1
+    #   action: replace
+
+
+node-feature-discovery:
+  enableNodeFeatureApi: true
+  master:
+    serviceAccount:
+      name: node-feature-discovery
+      create: true
+    config:
+      extraLabelNs: ["nvidia.com"]
+      # noPublish: false
+      # resourceLabels: ["nvidia.com/feature-1","nvidia.com/feature-2"]
+      # enableTaints: false
+      # labelWhiteList: "nvidia.com/gpu"

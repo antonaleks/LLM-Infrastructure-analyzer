@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: genai-perf-input-configmap
+data:
+  input.jsonl: |
+    {"text": "Объясни простыми словами, почему трава зелёная."}
+    {"text": "Объясни простыми словами, почему облака голубые."}

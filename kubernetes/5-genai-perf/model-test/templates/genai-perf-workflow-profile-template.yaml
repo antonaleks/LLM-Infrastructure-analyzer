@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: genai-perf-profile-template
+  annotations:
+    workflows.argoproj.io/description: |
+      GenAI Performance test
+spec:
+  arguments:
+    parameters:
+    - name: gpu-type
+      description: "GPU type (a100, rtx4090, a5000, a6000)"
+    - name: service-url
+      description: "URL of the vLLM service"
+    - name: request-count
+      description: "The number of requests to benchmark"
+    - name: model-name
+      description: "model name from HF"
+    - name: endpoint-type
+      default: "completions"
+    - name: output-tokens-mean
+      default: "200"
+    - name: output-tokens-stddev
+      default: "10"
+    - name: synthetic-input-tokens-mean
+      default: "200"
+    - name: synthetic-input-tokens-stddev
+      default: "10"
+  entrypoint: genai-perf 
+  serviceAccountName: argo-workflow
+  templates:
+  - name: genai-perf
+    inputs:
+      parameters:
+        - name: gpu-type
+    container:
+      image: nvcr.io/nvidia/tritonserver:25.08-py3-sdk
+      command: ["genai-perf"]
+      args: [
+        "profile",
+        "-m", "{{workflow.parameters.model-name}}",
+        "--url", "{{workflow.parameters.service-url}}",
+        "--endpoint-type", "{{workflow.parameters.endpoint-type}}",
+        "--output-tokens-mean", "{{workflow.parameters.output-tokens-mean}}",
+        "--output-tokens-stddev", "{{workflow.parameters.output-tokens-stddev}}",
+        "--synthetic-input-tokens-mean", "{{workflow.parameters.synthetic-input-tokens-mean}}",
+        "--synthetic-input-tokens-stddev", "{{workflow.parameters.synthetic-input-tokens-stddev}}",
+        "--warmup-request-count", "5",
+        "--request-count", "{{workflow.parameters.request-count}}",
+        "--request-rate", "{{workflow.parameters.request-rate}}",
+        "--verbose"
+      ]
+      env:
+      - name: HF_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: hf-token-secret
+            key: hf-token
+      volumeMounts:
+      - name: nfs-volume
+        mountPath: /workspace/
+        subPath: "{{ inputs.parameters.gpu-type }}"
+      - name: prompt-volume
+        mountPath: /prompts
+  volumes:
+  - name: nfs-volume
+    persistentVolumeClaim:
+      claimName: nfs-pvc
+  - name: prompt-volume
+    configMap:
+      name: genai-perf-input-configmap

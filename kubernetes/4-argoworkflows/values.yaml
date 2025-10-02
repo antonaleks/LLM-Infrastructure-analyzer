@@ -1,0 +1,23 @@
+controller:
+  nodeSelector:
+    role: system
+
+server:
+  nodeSelector:
+    role: system
+
+workflow:
+  nodeSelector:
+    role: system
+  serviceAccount:
+    create: true
+    name: "argo-workflow"
+  rbac:
+    create: true
+  controller:
+    workflowNamespaces:
+      - default
+
+executor:
+  nodeSelector:
+    role: system

@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyterlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyterlab
+  template:
+    metadata:
+      labels:
+        app: jupyterlab
+    spec:
+      nodeSelector:
+        role: system
+      securityContext:
+        runAsUser: 0
+        fsGroup: 0
+      containers:
+      - name: jupyterlab
+        image: jupyter/base-notebook:latest
+        ports:
+        - containerPort: 8888
+        volumeMounts:
+        - name: nfs-volume
+          mountPath: /home/root/work
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+        env:
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token-secret
+              key: hf-token
+        - name: NB_USER
+          value: root
+        - name: NB_UID
+          value: "0"
+        - name: NB_GID
+          value: "0"
+        command:
+        - start-notebook.sh
+        - --allow-root
+      volumes:
+      - name: nfs-volume
+        persistentVolumeClaim:
+          claimName: nfs-pvc 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyterlab
+spec:
+  type: NodePort
+  ports:
+    - port: 8888
+      targetPort: 8888
+  selector:
+    app: jupyterlab 
